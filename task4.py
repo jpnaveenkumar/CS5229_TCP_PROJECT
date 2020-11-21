@@ -13,7 +13,7 @@ import os
 
 myBandwidth = 50    # bandwidth of link ink Mbps
 myDelay = ['10ms', '10ms']    # latency of each bottleneck link
-myQueueSize = 50  # buffer size in packets
+myQueueSize = 1500  # buffer size in packets
 myLossPercentage = 0   # random loss on bottleneck links
 
 #

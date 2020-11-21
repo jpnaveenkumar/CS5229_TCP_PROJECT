@@ -12,7 +12,7 @@ import time
 import os
 
 myBandwidth = 50    # bandwidth of link ink Mbps
-myDelay = ['0ms', '10ms']    # latency of each bottleneck link
+myDelay = ['50ms', '10ms']    # latency of each bottleneck link
 myQueueSize = 1000  # buffer size in packets
 myLossPercentage = 0   # random loss on bottleneck links
 
@@ -74,9 +74,9 @@ def perfTest():
     net.pingAll()
     # CLI( net )
 
-    TCP_TYPE_first = 'bbr' # bbr or cubic
-    TCP_TYPE_second = 'bbr' # bbr or cubic
-    run_time_tot = 100 # total iperf3 runtime, in seconds. I recommend more than 300 sec.
+    TCP_TYPE_first = 'cubic' # bbr or cubic
+    TCP_TYPE_second = 'cubic' # bbr or cubic
+    run_time_tot = 200 # total iperf3 runtime, in seconds. I recommend more than 300 sec.
 
     h1, h2, h3, h4, h5, h6, h7, h8 = net.get('h1','h2','h3','h4','h5','h6','h7','h8')
     
@@ -89,23 +89,23 @@ def perfTest():
 
     
     # Receiver of flow 1 = h1
-    h1.cmd('iperf3 -s -i 1 > h1_server_%s &' % (TCP_TYPE_first))
+    h1.cmd('iperf3 -s -i 1 > h1_logs_3i_%s &' % (myDelay[0]))
     # Receiver of flow 2 = h4
-    h4.cmd('iperf3 -s -i 1 > h4_server_%s &' % (TCP_TYPE_second))
+    h4.cmd('iperf3 -s -i 1 > h4_logs_3i_%s &' % (myDelay[0]))
     
     # First, start to send the flow 1 : h8 --> h1
-    print("--- h8 sends to h1 with 1 TCP (%s) flow during %d sec ---" % (TCP_TYPE_first, run_time_tot))
-    h8.cmd('iperf3 -c 10.0.0.1 -t %d -C %s > flow1_tcp%s &' % (run_time_tot, TCP_TYPE_first, TCP_TYPE_first))
+    #print("--- h8 sends to h1 with 1 TCP (%s) flow during %d sec ---" % (TCP_TYPE_first, run_time_tot))
+    h8.cmd('iperf3 -c 10.0.0.1 -t %d -C %s > h8_logs_3i_h1_%s &' % (run_time_tot, TCP_TYPE_first, myDelay[0]))
 
     # wait 10 seconds 
     time.sleep(10)
 
     # Secondly, start to send the flow 2 : h8 --> h4
-    print("--- h8 sends to h4 with 1 TCP (%s) flow during %d sec ---" % (TCP_TYPE_second, run_time_tot - 10))
-    h8.cmd('iperf3 -c 10.0.0.4 -t %d -C %s > flow2_tcp%s &' % (run_time_tot - 10, TCP_TYPE_second, TCP_TYPE_second))
+    #print("--- h8 sends to h4 with 1 TCP (%s) flow during %d sec ---" % (TCP_TYPE_second, run_time_tot - 10))
+    h8.cmd('iperf3 -c 10.0.0.4 -t %d -C %s > h8_logs_3i_h4_%s &' % (run_time_tot - 10, TCP_TYPE_second, myDelay[0]))
 
     # wait enough until all processes are done.
-    time.sleep((run_time_tot - 10) + 3)
+    time.sleep(220)
     # CLI(net)
     net.stop() # exit mininet
 
